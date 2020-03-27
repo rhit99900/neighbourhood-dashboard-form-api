@@ -20,13 +20,28 @@
     // Body of Request
     $form_data = json_decode(file_get_contents('php://input'),true);    
 
-
     $category = [
         'essential_supplies' => 'Essential Supplies',
         'social_distancing'  => 'Social Distancing',
         'essential_supplies_needed' => 'Need Supplies',
         'needy_supplies'     =>  'Need Supplies',
         'nominate_person'    =>  'Get Supplies',
+    ];
+
+    $location = [
+        'apartment' => 'Apartment',
+        'shops'     => 'Shops',
+        'company'   => 'Company/Places of Work',
+        'street'    => 'Roads/Streets',
+        'other_loc' => 'Others'
+    ];
+
+    $items = [
+        'groceries' => 'Vegetables/Food/Groceries',
+        'fuel'      => 'Fuel/LPG/Gas',
+        'money'     => 'Money/Funds',
+        'medical'   => 'Medicines/Medical Services/Hospitals',
+        'other_ess' => 'Others'
     ];
     
     // Data Is from "Social Distancing" Form
@@ -46,7 +61,7 @@
                             $data->name .= ' '.$value['social_distance_details/details/location_landmark'];
                         }
                         if(isset($value['social_distance_details/details/location'])){
-                            $data->name .= ' - '.ucwords($value['social_distance_details/details/location']);
+                            $data->name .= ' - '.$location[$value['social_distance_details/details/location']];
                         }
                     }
                     else{
@@ -73,7 +88,7 @@
                 }                           
             }            
         }
-
+        // Data is From "Essential Supplies" Section of Form 
         else if($form_data_type=='essential_supplies'){
             if(isset($form_data['essentials_repeat'])){
                 $essentials_repeat = $form_data['essentials_repeat'];
@@ -101,8 +116,23 @@
             }
 
         }
-
-
+        // Data is From "I need essential supplies" Section of Form 
+        else if($form_data_type=='essential_supplies_needed'){
+            if(isset($form_data['essentials_needed_grp/essential_needed_choice'])){
+                $data->subcategory = ucwords($form_data['essentials_needed_grp/essential_needed_choice']);
+                $data->name = ucwords($form_data['essentials_needed_grp/essential_needed_choice']);
+            }
+            if(isset($form_data['essentials_needed_grp/essential_needed_address'])){
+                $data->address = $form_data['essentials_needed_grp/essential_needed_address'].' ';
+            }
+            else{
+                $data->address = '';
+            }
+            if(isset($form_data['essentials_needed_grp/essentials_needed_geocode'])){
+                $data->address .= $form_data['essentials_needed_grp/essentials_needed_geocode'];
+                $data->setLocation($form_data['essentials_needed_grp/essentials_needed_geocode']);
+            }
+        }
     }
     // Data Is from "Help the Needy" Form
     else if(isset($form_data['details/dwe_data_type'])){
@@ -120,7 +150,12 @@
             }
         }
         else if($form_data_type=='nominate_person'){
-
+            if(isset($form_data['nominee_repeat'])){
+                $nominee_repeat = $form_data['nominee_repeat'];
+                foreach($nominee_repeat as $key => $value){
+                    
+                }
+            }
         }
         else{
             http_response_code(400);                
