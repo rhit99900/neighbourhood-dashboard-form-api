@@ -27,7 +27,7 @@ class Data{
     public $number;
     public $info;
         
-    public $fillable = false;
+    public $fillable = true;
   
     // constructor with $db as database connection
     public function __construct($db){
@@ -74,8 +74,10 @@ class Data{
         $stmt->bindParam(":number", $this->number);
         $stmt->bindParam(":info", $this->info);
         // execute query
-        if($stmt->execute()){
-            return true;
+        if($this->fillable){
+            if($stmt->execute()){
+                return true;
+            }
         }
       
         return false;
